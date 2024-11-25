@@ -8,12 +8,38 @@ const dynamicguySidebar = ref([
     label: "Overview",
     items: [
       { label: "Home", icon: "ph:house", to: "/" },
-      { label: "People", icon: "ph:user", to: "/people" },
-      { label: "Search", icon: "ph:user", to: "/search" },
       { label: "Dashboard", icon: "ph:house", to: "/dashboard" },
     ],
   },
+  {
+    label: "Navigation",
+    items: [
+      {
+        label: "People",
+        icon: "ph:devices",
+        items: [
+          {
+            label: "All",
+            icon: "ph:circle",
+            analysisbadge: "221500",
+            to: "/people",
+          },
+          {
+            label: "Search",
+            icon: "ph:circle",
+            to: "/search"
+          },
+          {
+            label: "Add",
+            icon: "ph:circle",
+            to: "/add"
+          },
+        ],
+      },
+    ],
+  },
 ]);
+
 
 dynamicguySidebar.value = dynamicguySidebar.value.map((category) => {
   const calculateBadges = (items) => {

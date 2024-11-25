@@ -201,7 +201,7 @@ const mockupSidebar = ref([
           {
             label: "Unregistered",
             icon: "ph:circle",
-            badge: "2",
+            analysisbadge: "221500",
             to: "/devices/unregistered",
           },
           {
