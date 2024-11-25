@@ -8,8 +8,8 @@ from fastapi import File, UploadFile, HTTPException
 app = FastAPI()
 
 ES = Elasticsearch(hosts=['http://localhost:9200'], http_auth=('elastic', 'DkIed99SCb'))
-ES_INDEX = 'dynamic_facedb'
-
+ES_INDEX = 'facedb'
+MODEL_NAME = 'Facenet512'
 
 @app.get("/api/items")
 def read_root(limit: Union[int, None] = 12):
@@ -81,7 +81,7 @@ def upload(file: UploadFile = File(...)):
     finally:
         file.file.close()
         embedding_objs = DeepFace.represent(img_path=upload_path,
-                                            model_name='ArcFace',
+                                            model_name=MODEL_NAME,
                                             detector_backend='retinaface',
                                             align=True
                                             )

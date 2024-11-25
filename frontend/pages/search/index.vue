@@ -3,7 +3,7 @@ import { useSidebarStore } from "@/stores/sidebar";
 const sidebarStore = useSidebarStore();
 const route = useRoute();
 
-const results = ref([]);
+const results = ref(null);
 const previewSrc = ref(null);
 const loading = ref(false);
 const dynamicguySidebar = ref([
@@ -147,7 +147,7 @@ const doSearch = async (event) => {
       <!-- Performance Chart Section -->
       <div class="mt-8">
         <div class="rounded-lg bg-white p-6 shadow-lg">
-          <h3 class="mb-4 text-xl font-semibold">Search results found: {{results.total}}, Query image info: age: {{results.q.identified_age}}, gender: {{results.q.identified_gender}}, rage: {{results.q.identified_race}}, emotion: {{results.q.identified_emotion}}</h3>
+          <h3 class="mb-4 text-xl font-semibold" v-if="results">Search results found: {{results.total}}, Query image info: age: {{results.q.identified_age}}, gender: {{results.q.identified_gender}}, rage: {{results.q.identified_race}}, emotion: {{results.q.identified_emotion}}</h3>
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
 
             <div v-if="loading" role="status">
@@ -158,7 +158,7 @@ const doSearch = async (event) => {
               <span class="sr-only">Loading...</span>
             </div>
 
-            <div v-if="!loading" v-for="item in results.items" class="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            <div v-if="!loading && results" v-for="item in results.items" class="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
               <a :href="'/people/'+item.id">
                 <img class="rounded-t-lg" :src="item.image_url" alt="" />
               </a>

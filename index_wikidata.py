@@ -37,7 +37,7 @@ def extract_filename(url):
 es = Elasticsearch(hosts=['http://localhost:9200'], http_auth=('elastic', 'DkIed99SCb'))
 
 WDT_QUERY = """
-SELECT DISTINCT ?person ?personLabel ?personDescription ?sitelinks ?genderLabel ?dob ?occupationLabel ?birthPlaceLabel ?coords ?image
+SELECT DISTINCT ?person ?personLabel ?personDescription ?sitelinks ?genderLabel ?dob ?birthPlaceLabel ?coords ?image
 WHERE {
     ?person wdt:P31 wd:Q5;            # Any instance of a human
           wdt:P19/wdt:P131* wd:Q60; # Who was born in any value (eg. a hospital)
@@ -55,7 +55,7 @@ ORDER BY DESC(?sitelinks)
 LIMIT 1000
 """
 
-model_name = 'ArcFace'
+model_name = 'Facenet512'
 target_size = (160, 160)
 embedding_size = 512
 
@@ -84,7 +84,7 @@ mapping = {
 }
 
 try:
-    es.indices.create(index="dynamic_facedb", body=mapping)
+    es.indices.create(index="facedb", body=mapping)
 except:
     pass
 
@@ -128,6 +128,6 @@ for index, row in df.iterrows():
             'identified_emotion': objs[0].get('dominant_emotion'),
         }
         print('indexing', row['personLabel'])
-        es.create("dynamic_facedb", id=index, body=doc)
+        es.create("facedb", id=index, body=doc)
     except:
         pass
