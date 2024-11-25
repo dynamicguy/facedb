@@ -1,0 +1,9 @@
+deepface
+elasticsearch
+matplotlib
+tf-keras
+retina-face
+fastapi[standard]
+SPARQLWrapper
+pandas
+requests

@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.17.6"
+    ports:
+      - "9200:9200"
+    restart: on-failure
+    environment:
+      - http.cors.enabled=true
+      - http.cors.allow-origin=/.*/
+      - xpack.security.transport.ssl.enabled=true
+      - http.cors.allow-headers=X-Requested-With,Content-Type,Content-Length,Authorization
+      - cluster.name=oscar
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=DkIed99SCb
+      - xpack.security.enabled=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+    healthcheck:
+      test: curl --fail -u "elastic:DkIed99SCb" http://localhost:9200/_cat/health || exit 1
+      interval: 10s
+      timeout: 1s
+      retries: 10
+
+  elasticvue:
+    image: cars10/elasticvue
+    restart: unless-stopped
+    depends_on:
+      - elasticsearch
+    ports:
+      - "8080:8080"
