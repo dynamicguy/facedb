@@ -1,5 +1,8 @@
 <script setup>
 import { useSidebarStore } from "@/stores/sidebar";
+import { useAuthStore } from "@/stores/auth";
+
+const autStore = useAuthStore();
 const sidebarStore = useSidebarStore();
 const route = useRoute();
 
@@ -135,7 +138,7 @@ onMounted(() => {
         >
           <Icon name="ph:list" />
         </button>
-        <h1 class="ml-4 text-3xl font-semibold">Welcome back, Nurul Ferdous</h1>
+        <h1 class="ml-4 text-3xl font-semibold">Welcome back, {{ autStore.fullName }}</h1>
       </div>
 
       <!-- Dashboard Overview Cards -->

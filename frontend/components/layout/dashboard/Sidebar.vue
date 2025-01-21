@@ -1,5 +1,8 @@
 <script setup>
 import { useSidebarStore } from "@/stores/sidebar";
+import { useAuthStore } from "@/stores/auth";
+
+const autStore = useAuthStore();
 const sidebarStore = useSidebarStore();
 
 defineProps({
@@ -8,6 +11,7 @@ defineProps({
     default: () => ({}),
   },
 });
+
 const expandProfile = ref(false);
 const profileButton = ref(null);
 const profileMenu = ref(null);
@@ -19,6 +23,11 @@ const handleClickOutside = (event) => {
   if (!isClickOnButton && !isClickOnMenu && expandProfile.value) {
     expandProfile.value = false;
   }
+};
+
+const handleLogout = async () => {
+  autStore.logout();
+  await navigateTo("/login");
 };
 
 onMounted(() => {
@@ -85,13 +94,13 @@ onUnmounted(() => {
               </router-link>
             </li>
             <li>
-              <router-link
-                to="/settings"
+              <button
+                @click="handleLogout"
                 class="flex select-none items-center gap-2 rounded-md px-3 py-2 font-medium hover:bg-slate-200 hover:text-gray-600"
               >
                 <Icon name="ph:sign-out" />
                 <span>Sign out</span>
-              </router-link>
+              </button>
             </li>
           </ul>
         </div>
@@ -112,8 +121,8 @@ onUnmounted(() => {
         />
         <div class="ml-3 flex w-full items-center justify-between align-middle">
           <div class="grid grid-flow-row">
-            <span class="font-medium">Nurul Ferdous</span>
-            <span class="text-sm">Administrator</span>
+            <span class="font-medium">{{ autStore.fullName }}</span>
+            <span class="text-sm">{{ autStore.username }}</span>
           </div>
           <Icon
             name="ph:caret-up"

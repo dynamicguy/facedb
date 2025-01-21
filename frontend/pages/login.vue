@@ -1,13 +1,13 @@
 <script setup lang="ts">
-// const { loggedIn, user, fetch: refreshSession } = useUserSession()
+import { useAuthStore } from "@/stores/auth";
+const autStore = useAuthStore();
+
+
 const credentials = reactive({
   username: '',
   password: '',
-  client_id: 'web',
-  client_secret: 'web',
-  scope: '*',
-  grant_type: 'password'
 })
+
 async function handleLogin() {
   console.log('CREDENTIALS', credentials)
   const formData = new FormData()
@@ -20,10 +20,18 @@ async function handleLogin() {
     .then(async (res) => {
       // Refresh the session on client-side and redirect to the home page
       console.log('RESPONSE', res)
-      // await refreshSession()
-      await navigateTo('/')
+      if(res && res.user){
+        const email = res.user.email;
+        const fullName = res.user.full_name;
+        console.log('email', email, fullName);
+        autStore.login(res.access_token, true, res.user.username, email, fullName);
+        await navigateTo('/');
+      }
     })
-    .catch(() => console.error('Bad credentials'))
+    .catch((err) => {
+      console.error('Bad credentials', err)
+      autStore.logout()
+    })
 }
 </script>
 

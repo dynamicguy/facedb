@@ -43,7 +43,6 @@
     "preline": "^2.5.1",
     "prettier": "^3.3.2",
     "prettier-plugin-tailwindcss": "^0.6.5",
-    "typescript": "5.5.2",
-    "nuxt-auth-utils": "latest"
+    "typescript": "5.5.2"
   }
 }
