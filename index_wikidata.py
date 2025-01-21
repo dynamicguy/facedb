@@ -5,6 +5,7 @@ from deepface import DeepFace
 from retinaface import RetinaFace
 import cv2 as cv
 from uuid import uuid4
+from datetime import datetime
 
 from wiki_data_query_results import WikiDataQueryResults
 
@@ -79,6 +80,8 @@ mapping = {
             "identified_gender": {"type": "keyword"},
             "identified_race": {"type": "keyword"},
             "identified_emotion": {"type": "keyword"},
+            "username": {"type": "keyword"},
+            "created_at": {"type": "date"},
         }
     }
 }
@@ -126,6 +129,8 @@ for index, row in df.iterrows():
             'identified_gender': objs[0].get('dominant_gender'),
             'identified_race': objs[0].get('dominant_race'),
             'identified_emotion': objs[0].get('dominant_emotion'),
+            'username': 'ferdous',
+            'created_at': datetime.now(),
         }
         print('indexing', row['personLabel'])
         es.create("facedb", id=index, body=doc)

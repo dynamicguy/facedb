@@ -7,3 +7,5 @@ fastapi[standard]
 SPARQLWrapper
 pandas
 requests
+passlib[bcrypt]
+pyjwt

@@ -3,6 +3,10 @@ import { useSidebarStore } from "@/stores/sidebar";
 const sidebarStore = useSidebarStore();
 const route = useRoute();
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 const dynamicguySidebar = ref([
   {
     label: "Overview",
