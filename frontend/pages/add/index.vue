@@ -1,7 +1,14 @@
 <script setup>
 import { useSidebarStore } from "@/stores/sidebar";
+import { useAuthStore } from "@/stores/auth";
+
+const autStore = useAuthStore();
 const sidebarStore = useSidebarStore();
 const route = useRoute();
+
+definePageMeta({
+  middleware: 'auth'
+});
 
 const analysis = ref(null);
 const result = ref(null);
@@ -118,6 +125,9 @@ const doAnalyze = async (event) => {
   const res = await $fetch('/api/analyze', {
     method: 'POST',
     body: formData,
+    headers: {
+      'Authorization': `Bearer ${autStore.token}`,
+    },
   })
   analysis.value = res;
   loading.value = false;
@@ -148,6 +158,7 @@ const doSubmit = async (event) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${autStore.token}`,
     },
     body: json,
   })

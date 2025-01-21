@@ -1,7 +1,14 @@
 <script setup>
 import { useSidebarStore } from "@/stores/sidebar";
+import { useAuthStore } from "@/stores/auth";
+
+const autStore = useAuthStore();
 const sidebarStore = useSidebarStore();
 const route = useRoute();
+
+definePageMeta({
+  middleware: 'auth'
+});
 
 const results = ref(null);
 const previewSrc = ref(null);
@@ -73,6 +80,7 @@ dynamicguySidebar.value = dynamicguySidebar.value.map((category) => {
 
 // Add this computed property
 const isSidebarOpen = ref(true);
+
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
 };
@@ -116,6 +124,9 @@ const doSearch = async (event) => {
   const res = await $fetch('/api/search', {
     method: 'POST',
     body: formData,
+    headers: {
+      Authorization: `Bearer ${autStore.token}`
+    }
   })
   results.value = res;
   loading.value = false;

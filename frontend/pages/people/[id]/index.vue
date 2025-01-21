@@ -1,7 +1,14 @@
 <script setup>
 import { useSidebarStore } from "@/stores/sidebar";
+import { useAuthStore } from "@/stores/auth";
+
+const autStore = useAuthStore();
 const sidebarStore = useSidebarStore();
 const route = useRoute();
+
+definePageMeta({
+  middleware: 'auth'
+})
 
 const dynamicguySidebar = ref([
   {
@@ -69,7 +76,7 @@ dynamicguySidebar.value = dynamicguySidebar.value.map((category) => {
 
 const { data, status, error, refresh, clear } = await useAsyncData(
   'data',
-  () => $fetch('/api/items/'+route.params.id)
+  () => $fetch('/api/items/'+route.params.id, { headers: { Authorization: `Bearer ${autStore.token}` }}),
 );
 
 // Add this computed property

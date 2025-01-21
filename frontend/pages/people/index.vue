@@ -6,6 +6,10 @@ const autStore = useAuthStore();
 const sidebarStore = useSidebarStore();
 const route = useRoute();
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 const dynamicguySidebar = ref([
   {
     label: "Overview",
@@ -43,7 +47,6 @@ const dynamicguySidebar = ref([
   },
 ]);
 
-
 dynamicguySidebar.value = dynamicguySidebar.value.map((category) => {
   const calculateBadges = (items) => {
     const updatedItems = items.map((item) => {
@@ -72,7 +75,7 @@ dynamicguySidebar.value = dynamicguySidebar.value.map((category) => {
 
 const { data, status, error, refresh, clear } = await useAsyncData(
   'items',
-  () => $fetch('/api/items')
+  () => $fetch('/api/items', { headers: { Authorization: `Bearer ${autStore.token}` }}),
 );
 
 // Add this computed property
