@@ -1,6 +1,6 @@
 # Dynamic FaceDB
 
-Face recognition that renders results in miliseconds
+Face recognition that renders results in milliseconds
 
 ## Run API
 
