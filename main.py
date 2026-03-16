@@ -112,7 +112,7 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(username: str):
+def get_user(username: str | None):
     for user in DB_USERS:
         if user.get("username") == username:
             return user
@@ -211,7 +211,7 @@ async def create_user(user: UserDTO):
         "role": "user",
         "disabled": True,
     }
-    ES.create("users", id=ID, body=doc)
+    ES.create(index="users", id=ID, body=doc)
     return doc
 
 
