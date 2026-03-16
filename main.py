@@ -427,5 +427,5 @@ async def create_item(
         "username": current_user.get("username"),
         "created_at": datetime.now(timezone.utc),
     }
-    ES.create(ES_INDEX, id=ID, body=doc)
+    ES.create(index=ES_INDEX, id=ID, body=doc)
     return doc
