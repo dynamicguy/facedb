@@ -153,16 +153,16 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except InvalidTokenError:
         raise credentials_exception
-    user = get_user(username=token_data.username)
-    if user is None:
+    user_data = get_user(username=token_data.username)
+    if user_data is None:
         raise credentials_exception
-    return user
+    return User(**user_data)
 
 
 async def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    if current_user.get("disabled"):
+    if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
@@ -196,7 +196,7 @@ async def read_users_me(
 async def read_own_items(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
-    return [{"item_id": "Foo", "owner": current_user.get("username")}]
+    return [{"item_id": "Foo", "owner": current_user.username}]
 
 
 @app.post("/api/users/register")
@@ -280,12 +280,12 @@ def search(
 ):
     try:
         contents = file.file.read()
-        if not os.path.exists("public/uploads/" + current_user.get("username")):
-            os.mkdir("public/uploads/" + current_user.get("username"))
+        if not os.path.exists("public/uploads/" + current_user.username):
+            os.mkdir("public/uploads/" + current_user.username)
 
         upload_path = (
-            "public/uploads/" + current_user.get("username") + "/" + file.filename
-        )
+            "public/uploads/" + current_user.username + "/" + file.filename
+        ) # type: ignore
         with open(upload_path, "wb") as f:
             f.write(contents)
     except Exception:
@@ -293,7 +293,7 @@ def search(
     finally:
         file.file.close()
         embedding_objs = DeepFace.represent(
-            img_path=upload_path,
+            img_path=upload_path, # type: ignore
             model_name=MODEL_NAME,
             detector_backend="retinaface",
             align=True,
@@ -301,7 +301,7 @@ def search(
         target_embedding = embedding_objs[0]["embedding"]
 
         objs = DeepFace.analyze(
-            img_path=upload_path,
+            img_path=upload_path, # type: ignore
             actions=["age", "gender", "race", "emotion"],
             detector_backend="retinaface",
         )
@@ -366,12 +366,12 @@ def analyze(
     file: UploadFile = File(...),
 ):
     try:
-        if not os.path.exists("public/uploads/" + current_user.get("username")):
-            os.mkdir("public/uploads/" + current_user.get("username"))
+        if not os.path.exists("public/uploads/" + current_user.username):
+            os.mkdir("public/uploads/" + current_user.username)
         contents = file.file.read()
         upload_path = (
-            "public/uploads/" + current_user.get("username") + "/" + file.filename
-        )
+            "public/uploads/" + current_user.username + "/" + file.filename
+        ) # type: ignore
         with open(upload_path, "wb") as f:
             f.write(contents)
     except Exception:
@@ -379,13 +379,13 @@ def analyze(
     finally:
         file.file.close()
         objs = DeepFace.analyze(
-            img_path=upload_path,
+            img_path=upload_path, # type: ignore
             actions=["age", "gender", "race", "emotion"],
             detector_backend="retinaface",
         )
 
         return {
-            "img_path": upload_path,
+            "img_path": upload_path, # type: ignore
             "identified_age": objs[0].get("age"),
             "identified_gender": objs[0].get("dominant_gender"),
             "identified_race": objs[0].get("dominant_race"),
@@ -398,16 +398,16 @@ async def create_item(
     current_user: Annotated[User, Depends(get_current_active_user)], item: Item
 ):
     embedding_objs = DeepFace.represent(
-        img_path=item.img_path,
+        img_path=item.img_path, # type: ignore
         model_name=MODEL_NAME,
         detector_backend="retinaface",
         align=True,
     )
     embedding = embedding_objs[0]["embedding"]
 
-    target_faces = RetinaFace.extract_faces(img_path=item.img_path, align=True)
+    target_faces = RetinaFace.extract_faces(img_path=item.img_path, align=True) # type: ignore
     target_img = target_faces[0]
-    cv.imwrite(item.img_path + ".face.jpg", target_img[..., ::-1])
+    cv.imwrite(item.img_path + ".face.jpg", target_img[..., ::-1]) # type: ignore
     ID = uuid4().hex
     doc = {
         "id": ID,
@@ -418,13 +418,13 @@ async def create_item(
         "gender": item.gender,
         "dob": item.dob,
         "birth_place": item.birth_place,
-        "image_url": "http://localhost:8000/" + item.img_path,
-        "face_path": item.img_path + ".face.jpg",
+        "image_url": "http://localhost:8000/" + item.img_path, # type: ignore
+        "face_path": item.img_path + ".face.jpg", # type: ignore
         "identified_age": item.identified_age,
         "identified_gender": item.identified_gender,
         "identified_race": item.identified_race,
         "identified_emotion": item.identified_emotion,
-        "username": current_user.get("username"),
+        "username": current_user.username,
         "created_at": datetime.now(timezone.utc),
     }
     ES.create(index=ES_INDEX, id=ID, body=doc)
