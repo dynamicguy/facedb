@@ -53,7 +53,7 @@ WHERE {
     SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
 }
 ORDER BY DESC(?sitelinks)
-LIMIT 1000
+LIMIT 2
 """
 
 model_name = 'Facenet512'
@@ -87,7 +87,7 @@ mapping = {
 }
 
 try:
-    es.indices.create(index="facedb", body=mapping)
+    es.indices.create(index="facedb2", body=mapping)
 except:
     pass
 
@@ -113,9 +113,10 @@ for index, row in df.iterrows():
             actions = ['age', 'gender', 'race', 'emotion'],
             detector_backend='retinaface',
         )
+        ID = uuid4().hex
 
         doc = {
-            "id": uuid4().hex,
+            "id": ID,
             "title_vector": embedding,
             "title_name": row['personLabel'],
             'description': row['personDescription'],
@@ -133,6 +134,7 @@ for index, row in df.iterrows():
             'created_at': datetime.now(),
         }
         print('indexing', row['personLabel'])
-        es.create("facedb", id=index, body=doc)
+
+        es.create(index="facedb2", id=ID, body=doc)
     except:
         pass

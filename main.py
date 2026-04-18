@@ -74,7 +74,7 @@ app = FastAPI()
 app.mount("/public", StaticFiles(directory="public"), name="public")
 
 ES = Elasticsearch(hosts=["http://localhost:9200"], http_auth=("elastic", "DkIed99SCb"))
-ES_INDEX = os.getenv("ES_INDEX", "facedb")
+ES_INDEX = os.getenv("ES_INDEX", "suspects")
 MODEL_NAME = os.getenv("MODEL_NAME", "Facenet512")
 SECRET_KEY = os.getenv(
     "SECRET_KEY", "17dfb1a5c43144b0f041be2c14289aab236de064db1d59d945abfb206dba0d08"
@@ -218,9 +218,36 @@ async def create_user(user: UserDTO):
 @app.get("/api/items")
 def get_items(
     current_user: Annotated[User, Depends(get_current_active_user)],
-    limit: Union[int, None] = 12,
+    search: Union[str, None] = None,
+    page: Union[int, None] = 1,
+    size: Union[int, None] = 20,
+    sort_by: Union[str, None] = "created_at",
+    sort_order: Union[str, None] = "desc",
 ):
-    query = {"size": limit, "query": {"match_all": {}}}
+    if search:
+        query = {
+            "from": (page - 1) * size, 
+            "size": size, 
+            "query": {
+                "query_string": {
+                    "query": "*" + search + "*",
+                    "fields": ["title_name", "description", "gender", "birth_place"]
+                }
+            },
+            "sort": [
+                {sort_by: sort_order}
+            ]
+        }
+        print(query)
+    else:
+        query = {
+            "from": (page - 1) * size, 
+            "size": size, 
+            "query": {"match_all": {}},
+            "sort": [
+                {sort_by: sort_order}
+            ]
+        }
     res = ES.search(index=ES_INDEX, body=query)
     items = []
     for i in res["hits"]["hits"]:
@@ -244,7 +271,17 @@ def get_items(
             }
         )
 
-    return items
+    return {
+        "took": res["took"],
+        "total": res["hits"]["total"]["value"],
+        "search": search if search else '',
+        "sort_by": sort_by,
+        "sort_order": sort_order,
+        "page": page,
+        "size": size,
+        "items": items,
+    }
+
 
 
 @app.get("/api/items/{item_id}")
@@ -270,7 +307,42 @@ def read_item(
         "identified_gender": i["_source"]["identified_gender"],
         "identified_race": i["_source"]["identified_race"],
         "identified_emotion": i["_source"]["identified_emotion"],
+        "created_at": i["_source"]["created_at"],
     }
+
+
+@app.put("/api/items/{item_id}")
+def update_item(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    item_id: str,
+    item: Item,
+):
+    query = {"size": 1, "query": {"match": {"id": item_id}}}
+    res = ES.search(index=ES_INDEX, body=query)
+    if len(res["hits"]["hits"]) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+    i = res["hits"]["hits"][0]
+    if i["_source"]["username"] != current_user.username:
+        raise HTTPException(status_code=403, detail="Not authorized to update this item")
+
+    doc = {
+        "id": i["_source"]["id"],
+        "title_name": item.name,
+        "description": item.description,
+        "img_path": i["_source"]["img_path"],
+        "gender": item.gender,
+        "dob": i["_source"]["dob"],
+        "birth_place": item.birth_place,
+        "image_url": i["_source"]["image_url"],
+        "face_path": i["_source"]["face_path"],
+        "identified_age": i["_source"]["identified_age"],
+        "identified_gender": item.gender,
+        "identified_race": i["_source"]["identified_race"],
+        "identified_emotion": i["_source"]["identified_emotion"],        
+    }
+
+    ES.update(index=ES_INDEX, id=item_id, body={"doc": doc})
+    return doc
 
 
 @app.post("/api/search")
@@ -307,7 +379,7 @@ def search(
         )
 
         query = {
-            "size": 12,
+            "size": 21,
             "query": {
                 "script_score": {
                     "query": {
@@ -343,6 +415,7 @@ def search(
                     "identified_gender": i["_source"]["identified_gender"],
                     "identified_race": i["_source"]["identified_race"],
                     "identified_emotion": i["_source"]["identified_emotion"],
+                    "created_at": i["_source"]["created_at"],
                     "score": i["_score"],
                 }
             )
@@ -350,7 +423,7 @@ def search(
         return {
             "took": res["took"],
             "total": res["hits"]["total"]["value"],
-            "q": {
+            "identified": {
                 "identified_age": objs[0].get("age"),
                 "identified_gender": objs[0].get("dominant_gender"),
                 "identified_race": objs[0].get("dominant_race"),
