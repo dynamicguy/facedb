@@ -3,3 +3,4 @@ frontend/.nuxt
 .idea
 public/
 __pycache__
+.DS_Store
