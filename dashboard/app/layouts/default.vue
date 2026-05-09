@@ -43,6 +43,21 @@ const links = [[{
       open.value = false
     }
   }]
+}, {
+  label: 'Users',
+  to: '/users',
+  icon: 'i-lucide-users',
+  defaultOpen: false,
+  type: 'trigger',
+  children: [{
+    icon: 'i-lucide-list',
+    label: 'List',
+    to: '/users',
+    exact: true,
+    onSelect: () => {
+      open.value = false
+    }
+  }]
 }], [{
   label: 'Settings',
   to: '/settings',

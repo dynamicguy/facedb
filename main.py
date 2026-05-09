@@ -23,6 +23,7 @@ class TokenData(BaseModel):
 
 
 class User(BaseModel):
+    id: str | None = None
     username: str
     email: str | None = None
     full_name: str | None = None
@@ -118,6 +119,12 @@ def get_user(username: str | None):
             return user
     return None
 
+def get_user_by_user_id(user_id: str):
+    for user in DB_USERS:
+        if user.get("id") == user_id:
+            return user
+    return None
+
 
 def authenticate_user(username: str, password: str):
     user = get_user(username)
@@ -190,6 +197,46 @@ async def read_users_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     return current_user
+
+
+@app.get("/api/users/")
+async def read_users(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to view users")
+    users = []
+    for user in DB_USERS:
+        users.append(User(**user))
+    return users
+
+
+@app.get("/api/users/{user_id}/", response_model=User)
+async def get_user_by_id(current_user: Annotated[User, Depends(get_current_active_user)], user_id: str):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to view users")
+    user = get_user_by_user_id(user_id)
+    return user
+
+
+@app.put("/api/users/{user_id}/")
+async def update_user_by_id(current_user: Annotated[User, Depends(get_current_active_user)], user_id: str, user: User):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to update users")
+    user_data = get_user_by_user_id(user_id)
+    if user_data is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    doc = {
+        "id": user_data.get("id"),
+        "username": user.username,
+        # "hashed_password": user_data.get("hashed_password"),
+        "email": user.email,
+        "full_name": user.full_name,
+        "role": user.role,
+        "disabled": user.disabled,
+    }
+    ES.update(index="users", id=user_id, body={"doc": doc})
+    return doc
 
 
 @app.get("/api/my/suspects/")

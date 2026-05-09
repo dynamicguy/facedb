@@ -5,11 +5,14 @@ export type SaleStatus = 'paid' | 'failed' | 'refunded'
 
 export interface User {
   id: number
-  name: string
+  username: string
+  full_name: string
   email: string
   avatar?: AvatarProps
   status: UserStatus
   location: string
+  disabled: boolean
+  role: string
 }
 
 export interface Mail {
