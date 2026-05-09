@@ -54,7 +54,7 @@ class UserInDB(User):
 
 class Item(BaseModel):
     name: str
-    description: str | None = None
+    bio: str | None = None
     gender: str | None = None
     dob: str | None = None
     birth_place: str | None = None
@@ -80,7 +80,7 @@ SECRET_KEY = os.getenv(
     "SECRET_KEY", "17dfb1a5c43144b0f041be2c14289aab236de064db1d59d945abfb206dba0d08"
 )
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
 
 def get_users_from_db():
@@ -192,11 +192,52 @@ async def read_users_me(
     return current_user
 
 
-@app.get("/api/users/me/items/")
-async def read_own_items(
+@app.get("/api/my/suspects/")
+async def read_own_suspects(
     current_user: Annotated[User, Depends(get_current_active_user)],
+    search: Union[str, None] = None,
+    page: Union[int, None] = 1,
+    size: Union[int, None] = 20,
+    sort_by: Union[str, None] = "created_at",
+    sort_order: Union[str, None] = "desc",
 ):
-    return [{"item_id": "Foo", "owner": current_user.username}]
+    query = {
+        "query": {
+            "match": {"username": current_user.username},
+        }
+    }
+    res = ES.search(index=ES_INDEX, body=query)
+    items = []
+    for i in res["hits"]["hits"]:
+        items.append(
+            {
+                "id": i["_source"]["id"],
+                "name": i["_source"]["name"],
+                "bio": i["_source"]["bio"],
+                "img_path": i["_source"]["img_path"],
+                "gender": i["_source"]["gender"],
+                "dob": i["_source"]["dob"],
+                "birth_place": i["_source"]["birth_place"],
+                "image_url": i["_source"]["image_url"],
+                "face_path": i["_source"]["face_path"],
+                "identified_age": i["_source"]["identified_age"],
+                "identified_gender": i["_source"]["identified_gender"],
+                "identified_race": i["_source"]["identified_race"],
+                "identified_emotion": i["_source"]["identified_emotion"],
+                "created_at": i["_source"]["created_at"],
+            }
+        )
+
+    return {
+        "took": res["took"],
+        "total": res["hits"]["total"]["value"],
+        "search": search if search else '',
+        "sort_by": sort_by,
+        "sort_order": sort_order,
+        "page": page,
+        "size": size,
+        "items": items,
+    }
 
 
 @app.post("/api/users/register")
@@ -215,8 +256,8 @@ async def create_user(user: UserDTO):
     return doc
 
 
-@app.get("/api/items")
-def get_items(
+@app.get("/api/suspects")
+def get_suspects(
     current_user: Annotated[User, Depends(get_current_active_user)],
     search: Union[str, None] = None,
     page: Union[int, None] = 1,
@@ -230,8 +271,8 @@ def get_items(
             "size": size, 
             "query": {
                 "query_string": {
-                    "query": "*" + search + "*",
-                    "fields": ["title_name", "description", "gender", "birth_place"]
+                    "query": search,
+                    "fields": ["name", "bio", "gender", "birth_place"]
                 }
             },
             "sort": [
@@ -254,8 +295,8 @@ def get_items(
         items.append(
             {
                 "id": i["_source"]["id"],
-                "name": i["_source"]["title_name"],
-                "description": i["_source"]["description"],
+                "name": i["_source"]["name"],
+                "bio": i["_source"]["bio"],
                 "img_path": i["_source"]["img_path"],
                 "gender": i["_source"]["gender"],
                 "dob": i["_source"]["dob"],
@@ -284,8 +325,8 @@ def get_items(
 
 
 
-@app.get("/api/items/{item_id}")
-def read_item(
+@app.get("/api/suspects/{item_id}")
+def read_suspect(
     current_user: Annotated[User, Depends(get_current_active_user)],
     item_id: str,
     q: Union[str, None] = None,
@@ -295,8 +336,8 @@ def read_item(
     i = res["hits"]["hits"][0]
     return {
         "id": i["_source"]["id"],
-        "name": i["_source"]["title_name"],
-        "description": i["_source"]["description"],
+        "name": i["_source"]["name"],
+        "bio": i["_source"]["bio"],
         "img_path": i["_source"]["img_path"],
         "gender": i["_source"]["gender"],
         "dob": i["_source"]["dob"],
@@ -311,8 +352,8 @@ def read_item(
     }
 
 
-@app.put("/api/items/{item_id}")
-def update_item(
+@app.put("/api/suspects/{item_id}")
+def update_suspect(
     current_user: Annotated[User, Depends(get_current_active_user)],
     item_id: str,
     item: Item,
@@ -327,8 +368,8 @@ def update_item(
 
     doc = {
         "id": i["_source"]["id"],
-        "title_name": item.name,
-        "description": item.description,
+        "name": item.name,
+        "bio": item.bio,
         "img_path": i["_source"]["img_path"],
         "gender": item.gender,
         "dob": i["_source"]["dob"],
@@ -343,6 +384,23 @@ def update_item(
 
     ES.update(index=ES_INDEX, id=item_id, body={"doc": doc})
     return doc
+
+
+@app.delete("/api/suspects/{item_id}")
+def delete_suspect(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    item_id: str,
+):
+    query = {"size": 1, "query": {"match": {"id": item_id}}}
+    res = ES.search(index=ES_INDEX, body=query)
+    if len(res["hits"]["hits"]) == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+    i = res["hits"]["hits"][0]
+    if i["_source"]["username"] != current_user.username:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this item")
+
+    ES.delete(index=ES_INDEX, id=item_id)
+    return {"detail": "Item deleted"}
 
 
 @app.post("/api/search")
@@ -383,11 +441,11 @@ def search(
             "query": {
                 "script_score": {
                     "query": {
-                        "match": {"identified_gender": objs[0].get("dominant_gender")},
-                        # "match_all": {},
+                        # "match": {"identified_gender": objs[0].get("dominant_gender")},
+                        "match_all": {},
                     },
                     "script": {
-                        "source": "cosineSimilarity(params.queryVector, 'title_vector') + 1.0",
+                        "source": "cosineSimilarity(params.queryVector, 'face_vector') + 1.0",
                         # "source": "1 / (1 + l2norm(params.queryVector, 'title_vector'))", #euclidean distance
                         "params": {"queryVector": list(target_embedding)},
                     },
@@ -403,8 +461,8 @@ def search(
             items.append(
                 {
                     "id": i["_source"]["id"],
-                    "name": i["_source"]["title_name"],
-                    "description": i["_source"]["description"],
+                    "name": i["_source"]["name"],
+                    "bio": i["_source"]["bio"],
                     "img_path": i["_source"]["img_path"],
                     "gender": i["_source"]["gender"],
                     "dob": i["_source"]["dob"],
@@ -467,7 +525,7 @@ def analyze(
 
 
 @app.post("/api/add")
-async def create_item(
+async def create_suspect(
     current_user: Annotated[User, Depends(get_current_active_user)], item: Item
 ):
     embedding_objs = DeepFace.represent(
@@ -484,9 +542,9 @@ async def create_item(
     ID = uuid4().hex
     doc = {
         "id": ID,
-        "title_vector": embedding,
-        "title_name": item.name,
-        "description": item.description,
+        "face_vector": embedding,
+        "name": item.name,
+        "bio": item.bio,
         "img_path": item.img_path,
         "gender": item.gender,
         "dob": item.dob,

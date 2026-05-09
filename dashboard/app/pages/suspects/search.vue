@@ -101,7 +101,7 @@ const doSearch = async () => {
 
                     <UBadge :color="suspect.score > 1.8 ? 'error' : 'neutral'" :label="(suspect.score-1).toFixed(4)"/>
                   </UCardTitle>
-                  <p>{{ suspect.description }}</p>
+                  <p>{{ suspect.bio }}</p>
 
                 </UCardBody>
               </UCard>

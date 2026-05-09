@@ -1,15 +1,38 @@
 <script setup lang="ts">
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+const toast = useToast()
+
+const emit = defineEmits(['refreshSuspects'])
+
 withDefaults(defineProps<{
   count?: number
+  suspectIds?: string[]
 }>(), {
-  count: 0
+  count: 0,
+  suspectIds: () => []
 })
 
 const open = ref(false)
 
-async function onSubmit() {
-  await new Promise(resolve => setTimeout(resolve, 1000))
+async function onSubmit(ids: string[] | undefined) {
+  if (!ids || ids.length === 0) {
+    toast.add({ title: 'Error', description: 'No suspect selected.', color: 'error' })
+    return
+  }
+  for (const sid of ids) {
+    await $fetch('/backend/suspects/' + sid, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+  }
   open.value = false
+  emit('refreshSuspects')
+  toast.add({ title: 'Success', description: 'Suspect deleted successfully.', color: 'success' })
 }
 </script>
 
@@ -34,7 +57,7 @@ async function onSubmit() {
           color="error"
           variant="solid"
           loading-auto
-          @click="onSubmit"
+          @click="onSubmit(suspectIds)"
         />
       </div>
     </template>

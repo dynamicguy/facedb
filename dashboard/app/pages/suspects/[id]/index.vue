@@ -9,7 +9,7 @@ import { useAuthStore } from '@/stores/auth'
 const autStore = useAuthStore()
 const route = useRoute()
 
-const { data, status } = await useFetch<Suspect>('/backend/items/' + route.params.id, {
+const { data, status } = await useFetch<Suspect>('/backend/suspects/' + route.params.id, {
   lazy: true,
   headers: {
     'Authorization': `Bearer ${autStore.token}`,
@@ -49,7 +49,7 @@ const { data, status } = await useFetch<Suspect>('/backend/items/' + route.param
           </template>
           <UCardBody>
             <UCardTitle>{{ data.name }}</UCardTitle>
-            <p>{{ data.description }}</p>
+            <p>Bio: {{ data.bio }}</p>
             <p>Location: {{ data.birth_place }}</p>
             <p>Gender: {{ data.gender }}</p>
             <p>Date of Birth: {{ data.dob }}</p>

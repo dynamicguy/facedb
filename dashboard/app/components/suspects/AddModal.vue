@@ -13,7 +13,7 @@ const inputFile = ref<File[]>([])
 
 const schema = z.object({
   name: z.string().min(2, 'Too short'),
-  description: z.string().min(2, 'Too short'),
+  bio: z.string().min(2, 'Too short'),
   gender: z.enum(genders),
   dob: z.string(),
   birth_place: z.string('Birth place is required').min(2, 'Must be at least 2 characters').optional(),
@@ -24,16 +24,16 @@ type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
   name: '',
-  description: '',
+  bio: '',
   gender: 'Man',
   dob: undefined,
-  birth_place: '',
+  birth_place: undefined,
   image: undefined
 })
 
 const toast = useToast()
 
-// const { data, status } = await useFetch<Suspect>('/backend/items/' + route.params.id, {
+// const { data, status } = await useFetch<Suspect>('/backend/suspects/' + route.params.id, {
 //   headers: {
 //     'Authorization': `Bearer ${autStore.token}`,
 //     'Content-Type': 'application/json'
@@ -71,7 +71,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   loading.value = true
   const formData = new FormData()
   formData.append('name', event.data.name)
-  formData.append('description', event.data.description)
+  formData.append('bio', event.data.bio)
   formData.append('gender', event.data.gender)
   formData.append('dob', event.data.dob)
   formData.append('birth_place', event.data.birth_place)
@@ -116,8 +116,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         <UFormField label="Name" placeholder="John Doe" name="name">
           <UInput v-model="state.name" class="w-full" />
         </UFormField>
-        <UFormField label="Description" placeholder="Description of the suspect" name="description">
-          <UTextarea v-model="state.description" class="w-full" />
+        <UFormField label="Bio" placeholder="Bio of the suspect" name="bio">
+          <UTextarea v-model="state.bio" class="w-full" />
         </UFormField>
         <UFormField label="Gender" name="gender">
           <USelect v-model="state.gender" :items="genders" class="w-48" />

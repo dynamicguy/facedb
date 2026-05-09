@@ -537,7 +537,7 @@ wheels = [
 
 [[package]]
 name = "deepface"
-version = "0.0.95"
+version = "0.0.99"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fire" },
@@ -547,6 +547,8 @@ dependencies = [
     { name = "gunicorn" },
     { name = "keras", version = "3.10.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "keras", version = "3.11.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "lightdsa" },
+    { name = "lightphe" },
     { name = "mtcnn", version = "0.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "mtcnn", version = "1.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -555,14 +557,15 @@ dependencies = [
     { name = "opencv-python" },
     { name = "pandas" },
     { name = "pillow" },
+    { name = "python-dotenv" },
     { name = "requests" },
     { name = "retina-face" },
     { name = "tensorflow" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d0/29/f29612794e6ef0c14a87ee5bb77e9f35c558bc8816a7ceddebb3242f65b4/deepface-0.0.95.tar.gz", hash = "sha256:a8301c0b77c2e058de7718be2f2d37530ab79d6ed67755a7cacdd9f23f85c8cc", size = 108590, upload-time = "2025-08-05T20:39:47.529Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/1a/2bbd234a5c73834deac1fe99984cd191f2d6cb65ef2b2293ffd3f767eae3/deepface-0.0.99.tar.gz", hash = "sha256:b1534ad60be41a955b85514e67da933390cbfe331912db24bcca612a7e288ad4", size = 135755, upload-time = "2026-03-01T10:17:57.598Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9a/29/4b932aa8e1fbd7ad26d4550f394797f155073a1375eeb84cf54ad4f226bc/deepface-0.0.95-py3-none-any.whl", hash = "sha256:ae3472b62cde35356860fbecc452dae52f0e59ebfbeef57d60a77c7878f8091c", size = 128270, upload-time = "2025-08-05T20:39:45.851Z" },
+    { url = "https://files.pythonhosted.org/packages/4e/8a/2359fdf05cd4ed17c33ca041a3f0e8461b7c21d72121853766e03419045a/deepface-0.0.99-py3-none-any.whl", hash = "sha256:9743c3af254febbdfca273e12aa8a7d10e61c5c7cf8c86d50d06632df7732a87", size = 169508, upload-time = "2026-03-01T10:17:55.988Z" },
 ]
 
 [[package]]
@@ -674,11 +677,12 @@ dependencies = [
     { name = "retina-face" },
     { name = "sparqlwrapper" },
     { name = "tf-keras" },
+    { name = "uvicorn" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "deepface", specifier = ">=0.0.95" },
+    { name = "deepface", specifier = ">=0.0.99" },
     { name = "elasticsearch", specifier = ">=9.1.0" },
     { name = "faker", specifier = ">=37.12.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.116.1" },
@@ -690,6 +694,7 @@ requires-dist = [
     { name = "retina-face", specifier = ">=0.0.17" },
     { name = "sparqlwrapper", specifier = ">=2.0.0" },
     { name = "tf-keras", specifier = ">=2.20.1" },
+    { name = "uvicorn", specifier = ">=0.35.0" },
 ]
 
 [[package]]
@@ -1523,6 +1528,46 @@ wheels = [
 ]
 
 [[package]]
+name = "lightdsa"
+version = "0.0.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lightecc" },
+    { name = "sympy" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/31/e9/d54a2102150cb217bcd4d22b8961a807c988e16309212ffd856b9ec70dba/lightdsa-0.0.3.tar.gz", hash = "sha256:d4544278fba1e220ad250dbe06c6cb0b4f2bf4430127ccc3080b4ebf353e2b6e", size = 12906, upload-time = "2025-04-01T18:56:34.53Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0a/49/ac1f258d4868bb8c8c4fbec7f9a69ffc755a525d25c4b0cf879717184cb2/lightdsa-0.0.3-py3-none-any.whl", hash = "sha256:ea9e91586d8002ab205a2638983de72304370856332e986347492a7bf579a38b", size = 17390, upload-time = "2025-04-01T18:56:33.16Z" },
+]
+
+[[package]]
+name = "lightecc"
+version = "0.0.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/32/15/b28d5f6497320cc697b0dc71fbb3d6eb4ecdc3c93c40b04e42410e1fc532/lightecc-0.0.6.tar.gz", hash = "sha256:31dc14b08e5a813bd5864d8062fc1b4b27771155d53d9ddb78929d592a9f6792", size = 46956, upload-time = "2026-04-17T07:31:58.553Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/69/dd/912d114ab967e8ce4ec58040c39ef69c0d80634a951edff4e1d95d532783/lightecc-0.0.6-py3-none-any.whl", hash = "sha256:5b074e21917b493cebbe5c164b071021410ba23a94f032c828a6392f415aad8d", size = 51459, upload-time = "2026-04-17T07:31:56.747Z" },
+]
+
+[[package]]
+name = "lightphe"
+version = "0.0.24"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lightecc" },
+    { name = "sympy" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2e/62/2a2c0525907147604b90112f18f71ced98f407eaa673024489992b84e3be/lightphe-0.0.24.tar.gz", hash = "sha256:4883462ecd13060ac74e0352bdb10977f00f313ff0a66c7c04f0c45d10788127", size = 46990, upload-time = "2026-04-17T19:17:02.124Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/43/89169cb6ea1933f1331dcc8fd2ae4547d94434d06986c20271f1104d35ad/lightphe-0.0.24-py3-none-any.whl", hash = "sha256:d03056ad6950d243f4c36c50809a012fc62e89ea7bc64bb66f804c5cbb2fe29d", size = 70415, upload-time = "2026-04-17T19:17:00.795Z" },
+]
+
+[[package]]
 name = "lz4"
 version = "4.4.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1901,6 +1946,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/61/0e/a628f2aefd719745e8a13492375a55cedea77c0cfc917b1ce11bde435c68/ml_dtypes-0.5.3-cp39-cp39-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:01de48de4537dc3c46e684b969a40ec36594e7eeb7c69e9a093e7239f030a28a", size = 4952704, upload-time = "2025-07-29T18:39:14.829Z" },
     { url = "https://files.pythonhosted.org/packages/f8/2e/5ba92f1f99d1f5f62bffec614a5b8161e55c3961257c902fa26dbe909baa/ml_dtypes-0.5.3-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:8b1a6e231b0770f2894910f1dce6d2f31d65884dbf7668f9b08d73623cdca909", size = 4923538, upload-time = "2025-07-29T18:39:16.581Z" },
     { url = "https://files.pythonhosted.org/packages/70/3b/f801c69027866ea6e387224551185fedef62ad8e2e71181ec0d9dda905f7/ml_dtypes-0.5.3-cp39-cp39-win_amd64.whl", hash = "sha256:a4f39b9bf6555fab9bfb536cf5fdd1c1c727e8d22312078702e9ff005354b37f", size = 206567, upload-time = "2025-07-29T18:39:18.047Z" },
+]
+
+[[package]]
+name = "mpmath"
+version = "1.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e0/47/dd32fa426cc72114383ac549964eecb20ecfd886d1e5ccf5340b55b02f57/mpmath-1.3.0.tar.gz", hash = "sha256:7a28eb2a9774d00c7bc92411c19a89209d5da7c4c9a9e227be8330a23a25b91f", size = 508106, upload-time = "2023-03-07T16:47:11.061Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/43/e3/7d92a15f894aa0c9c4b49b8ee9ac9850d6e63b03c9c32c0367a13ae62209/mpmath-1.3.0-py3-none-any.whl", hash = "sha256:a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c", size = 536198, upload-time = "2023-03-07T16:47:09.197Z" },
 ]
 
 [[package]]
@@ -3045,6 +3099,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/15/b9/cc3017f9a9c9b6e27c5106cc10cc7904653c3eec0729793aec10479dd669/starlette-0.47.3.tar.gz", hash = "sha256:6bc94f839cc176c4858894f1f8908f0ab79dfec1a6b8402f6da9be26ebea52e9", size = 2584144, upload-time = "2025-08-24T13:36:42.122Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ce/fd/901cfa59aaa5b30a99e16876f11abe38b59a1a2c51ffb3d7142bb6089069/starlette-0.47.3-py3-none-any.whl", hash = "sha256:89c0778ca62a76b826101e7c709e70680a1699ca7da6b44d38eb0a7e61fe4b51", size = 72991, upload-time = "2025-08-24T13:36:40.887Z" },
+]
+
+[[package]]
+name = "sympy"
+version = "1.14.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mpmath" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/83/d3/803453b36afefb7c2bb238361cd4ae6125a569b4db67cd9e79846ba2d68c/sympy-1.14.0.tar.gz", hash = "sha256:d3d3fe8df1e5a0b42f0e7bdf50541697dbe7d23746e894990c030e2b05e72517", size = 7793921, upload-time = "2025-04-27T18:05:01.611Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl", hash = "sha256:e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5", size = 6299353, upload-time = "2025-04-27T18:04:59.103Z" },
 ]
 
 [[package]]

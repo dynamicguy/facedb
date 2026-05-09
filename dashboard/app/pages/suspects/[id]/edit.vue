@@ -12,7 +12,7 @@ import { useAuthStore } from '@/stores/auth'
 const autStore = useAuthStore()
 const route = useRoute()
 
-const { data, status } = await useFetch<Suspect>('/backend/items/' + route.params.id, {
+const { data, status } = await useFetch<Suspect>('/backend/suspects/' + route.params.id, {
   headers: {
     'Authorization': `Bearer ${autStore.token}`,
     'Content-Type': 'application/json'
@@ -20,11 +20,11 @@ const { data, status } = await useFetch<Suspect>('/backend/items/' + route.param
 })
 
 const genders = ['Man', 'Woman']
-const districts = ['Dhaka', 'Chittagong', 'Khulna', 'Rajshahi', 'Barisal', 'Sylhet', 'Rangpur', 'Mymensingh', 'Bogra', 'Comilla', 'Narayanganj', 'Gazipur', 'Tangail', 'Faridpur', 'Kishoreganj', 'Munshiganj', 'Shariatpur']
+const districts = ['ঢাকা', 'চট্টগ্রাম', 'রাজশাহী', 'খুলনা', 'বরিশাল', 'সিলেট', 'রংপুর', 'ময়মনসিংহ', 'কুমিল্লা', 'ফেনী', 'নোয়াখালী', 'লক্ষ্মীপুর', 'ভোলা', 'বরগুনা', 'বান্দরবান', 'রাঙ্গামাটি', 'খাগড়াছড়ি', 'জামালপুর', 'শেরপুর', 'নেত্রকোনা', 'মাদারীপুর', 'গোপালগঞ্জ', 'শরীয়তপুর']
 
 const schema = z.object({
   name: z.string('Name is required').min(2, 'Must be at least 2 characters'),
-  description: z.string('Description is required').min(8, 'Must be at least 8 characters'),
+  bio: z.string('Bio is required').min(8, 'Must be at least 8 characters'),
   gender: z.enum(genders),
   birth_place: z.string('Birth place is required').min(2, 'Must be at least 2 characters').optional()
 })
@@ -33,7 +33,7 @@ type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
   name: data.value?.name,
-  description: data.value?.description,
+  bio: data.value?.bio,
   gender: data.value?.gender,
   birth_place: data.value?.birth_place
 })
@@ -42,7 +42,7 @@ const toast = useToast()
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   console.log(event.data)
-  await $fetch('/backend/items/' + route.params.id, {
+  await $fetch('/backend/suspects/' + route.params.id, {
     method: 'PUT',
     headers: {
       'Authorization': `Bearer ${autStore.token}`,
@@ -95,8 +95,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 <UInput v-model="state.name" class="w-full" />
               </UFormField>
 
-              <UFormField label="Description" name="description" class="w-full">
-                <UTextarea v-model="state.description" class="w-full" />
+              <UFormField label="Bio" name="bio" class="w-full">
+                <UTextarea v-model="state.bio" class="w-full" />
               </UFormField>
 
               <UFormField label="Gender" name="gender">

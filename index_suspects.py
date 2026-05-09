@@ -11,7 +11,7 @@ from datetime import datetime
 import cv2 as cv
 
 model_name = 'Facenet512'
-index_name = 'suspects2'
+index_name = 'suspects'
 target_size = (160, 160)
 embedding_size = 512
 
@@ -47,7 +47,7 @@ mapping = {
 
 es.indices.create(index=index_name, body=mapping)
 
-dir_path = "public/suspects2/*.*"
+dir_path = "public/suspects/*.*"
 res = glob.glob(dir_path, recursive=True)
 files = []
 for item in res:
@@ -101,7 +101,7 @@ for img_path in files:
         }    
         es.create(index=index_name, id=ID, body=doc)
     except:
-        pass
+        print('error processing: ', img_path)
 
 toc = time.time()
 print("indexing completed in ", toc-tic, " seconds")

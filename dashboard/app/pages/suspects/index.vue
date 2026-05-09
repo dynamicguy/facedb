@@ -26,18 +26,18 @@ const columnFilters = ref([{
 }])
 
 const page = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(50)
 const search = ref('')
 
 const columnVisibility = ref()
-const rowSelection = ref({ })
+const rowSelection = ref({})
 
 const sort = ref({
   column: 'created_at',
   direction: 'desc'
 })
 
-const { data, status, refresh } = await useFetch<SuspectList>('/backend/items', {
+const { data, status, refresh } = await useFetch<SuspectList>('/backend/suspects', {
   lazy: true,
   headers: {
     'Authorization': `Bearer ${autStore.token}`,
@@ -53,6 +53,11 @@ const { data, status, refresh } = await useFetch<SuspectList>('/backend/items', 
   })),
   watch: [page, pageSize, search, sort]
 })
+
+const updateData = async () => {
+  table?.value?.tableApi?.resetRowSelection()
+  await refresh()
+}
 
 function getRowItems(row: Row<Suspect>) {
   return [
@@ -144,7 +149,7 @@ const columns: TableColumn<Suspect>[] = [
           ...row.original.image_url
             ? { src: row.original.image_url }
             : { fallback: row.original.name.toUpperCase() },
-          size: 'lg'
+          size: 'xl'
         }),
         h('div', undefined, [
           h('p', { class: 'font-medium text-highlighted' }, row.original.name),
@@ -179,12 +184,12 @@ const columns: TableColumn<Suspect>[] = [
     cell: ({ row }) => row.original.birth_place
   },
   {
-    accessorKey: 'Date of Birth',
+    accessorKey: 'dob',
     header: 'Date of Birth',
     cell: ({ row }) => new Date(row.original.dob).toLocaleDateString()
   },
   {
-    accessorKey: 'created at',
+    accessorKey: 'created_at',
     header: 'Created At',
     cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString()
   },
@@ -230,16 +235,23 @@ watch(() => genderFilter.value, (newVal) => {
   }
 })
 
-// const searchQuery = computed({
-//   get: (): string => {
-//     return (table.value?.tableApi?.getColumn('name')?.getFilterValue() as string) || ''
-//   },
-//   set: (value: string) => {
-//     table.value?.tableApi?.getColumn('name')?.setFilterValue(value || undefined)
-//   }
-// })
-// const rows = computed(() => data.value?.items ?? [])
 const total = computed(() => data.value?.total ?? 0)
+
+const fixSelected = async () => {
+  for (const item of table?.value?.tableApi?.getFilteredSelectedRowModel().rows) {
+    item.original.gender = 'Woman'
+    await $fetch('/backend/items/' + item.original.id, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${autStore.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(item.original)
+    })
+  }
+  toast.add({ title: 'Success', description: 'Suspect updated successfully.', color: 'success' })
+  table?.value?.tableApi?.resetRowSelection()
+}
 </script>
 
 <template>
@@ -277,7 +289,7 @@ const total = computed(() => data.value?.total ?? 0)
         </UInput>
 
         <div class="flex flex-wrap items-center gap-1.5">
-          <SuspectsDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
+          <SuspectsDeleteModal @refresh-suspects="updateData" :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length" :suspect-ids="table?.tableApi?.getFilteredSelectedRowModel().rows.map(r => r.original.id)">
             <UButton
               v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
               label="Delete"
@@ -292,6 +304,18 @@ const total = computed(() => data.value?.total ?? 0)
               </template>
             </UButton>
           </SuspectsDeleteModal>
+
+          <UButton
+            v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
+            label="Fix"
+            @click="fixSelected"
+          >
+            <template #trailing>
+              <UKbd>
+                {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length }}
+              </UKbd>
+            </template>
+          </UButton>
 
           <USelect
             v-model="genderFilter"

@@ -62,7 +62,7 @@ export interface Range {
 export interface Suspect {
   id: string
   name: string
-  description: string
+  bio: string
   img_path: string
   gender: string
   dob: string // ISO date string
